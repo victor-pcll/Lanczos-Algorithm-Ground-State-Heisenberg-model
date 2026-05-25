@@ -1,0 +1,24 @@
+# --- Environnements virtuels ---
+.env/
+venv/
+env/
+.venv/
+
+# --- Fichiers générés par Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Données de simulation et Graphiques ---
+# (Décommente les lignes ci-dessous si tu ne veux pas envoyer tes logs sur GitHub)
+# datas/
+# assets/
+*.log
+*.json
+
+# --- Fichiers système macOS ---
+.DS_Store
+
+# --- Fichiers Jupyter Notebook ---
+.ipynb_checkpoints/
