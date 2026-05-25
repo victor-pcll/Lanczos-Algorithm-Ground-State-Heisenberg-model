@@ -193,7 +193,7 @@ def plot_master_extrapolation(data_dict, mc_results, L, save_dir=save_default, n
     plt.xlabel(r"Variance $\sigma^2$ of energy per site", fontsize=LABEL_FONTSIZE) 
     plt.ylabel(r"Energy $E$ per site", fontsize=LABEL_FONTSIZE)
     # plt.title("Master Zero-Variance Extrapolation (All Runs)", fontsize=16, fontweight="bold")
-    plt.legend(loc='upper left', fontsize=LEGEND_FONTSIZE, framealpha=0.9, edgecolor="black")
+    plt.legend(loc='best', fontsize=LEGEND_FONTSIZE, framealpha=0.9, edgecolor="black")
     plt.grid(True, linestyle="--", alpha=0.5, zorder=0)
     plt.tight_layout()
 

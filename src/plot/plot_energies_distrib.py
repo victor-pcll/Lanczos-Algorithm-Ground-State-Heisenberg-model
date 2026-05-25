@@ -82,7 +82,7 @@ def plot_extrapolation_distribution(data_dict, mc_results, save_dir=save_default
     ax2.set_xlabel("Extrapolated Ground-State Energy per site", fontsize=LABEL_FONTSIZE)
     ax2.set_ylabel("Density", fontsize=LABEL_FONTSIZE)
     # ax2.set_title("Extrapolation Uncertainty Profile", fontsize=14, fontweight="bold")
-    ax2.legend(loc="upper left", fontsize=LEGEND_FONTSIZE, framealpha=0.9, edgecolor="black")
+    ax2.legend(loc="best", fontsize=LEGEND_FONTSIZE, framealpha=0.9, edgecolor="black")
     ax2.grid(True, linestyle="--", alpha=0.5)
 
     plt.tight_layout()
