@@ -3,6 +3,8 @@ from matplotlib import pyplot as plt
 LABEL_FONTSIZE = 18
 LEGEND_FONTSIZE = 14
 
+fig_size = (8, 6)
+
 save_default = "../../assets"
 
 plt.rcParams.update({

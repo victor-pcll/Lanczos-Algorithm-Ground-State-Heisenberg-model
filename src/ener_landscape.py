@@ -25,7 +25,6 @@ def compute_lanczos_landscape(vs_init, ha, h2, alphas_to_test, n_mcmc_steps=500)
 
     all_curves = np.array(all_curves)
 
-    # Calcul des moyennes et écarts-types pour chaque alpha
     energies_mean = np.mean(all_curves, axis=0)
     energies_std = np.std(all_curves, axis=0, ddof=1) 
     e_vmc = energies_mean[0]
@@ -52,13 +51,12 @@ def extract_optimal_alpha_bootstrap(alphas_to_test, energies_mean, energies_std,
     alpha_opt_final = alphas_valides[idx_min_reel]
     e_min_final = energies_valides[idx_min_reel]
 
-    # 3. Bootstrap pour la barre d'erreur
     alphas_min_bootstrap = []
     print(f"\nRunning Bootstrap for Error Estimation (Smoothing: {window_size is not None})...")
     
     for _ in range(n_bootstrap):
-        y_virtual = np.random.normal(energies_mean, energies_sem) # Le Bootstrap Paramétrique
-        
+        y_virtual = np.random.normal(energies_mean, energies_sem) # Le Bootstrap Paramétrique, on genre des nouvelles simulations d'énergie à partir de la distribution normale centrée sur les énergies moyennes et avec l'écart-type des SEM.
+        # on fait une approx guassienne de la distribution des énergies à chaque alpha, et on génère une nouvelle "courbe virtuelle" d'énergie à partir de cette distribution.
         if window_size is not None and window_size > 1:
             y_virtual_valide = moyenne_glissante_convolve(y_virtual, window_size)
         else:

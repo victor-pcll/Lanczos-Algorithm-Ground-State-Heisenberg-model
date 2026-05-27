@@ -44,7 +44,7 @@ def plot_zero_variance_extrapolation(results_e0, results_sigma_e0, el_valides, r
     exact_energy_per_site = exact_gs_energy / L
 
     # 4. Configuration de la figure
-    plt.figure(figsize=(9, 6), dpi=120)
+    plt.figure(figsize=fig_size, dpi=120)
 
     # Nuages de points (scatter) avec transparence
     plt.plot(results_sigma_e0 / L, results_e0 / L, "o", color="royalblue", markersize=3, alpha=0.2, label=r"$E_0$ Samples", zorder=1)
@@ -92,39 +92,32 @@ def plot_multiple_extrapolation_distributions(mc_results_dict, exact_gs_energy_p
         save_dir (str): Dossier où sauvegarder l'image.
     """
     os.makedirs(save_dir, exist_ok=True)
-    fig2, ax2 = plt.subplots(figsize=(10, 6), dpi=120)
+    fig2, ax2 = plt.subplots(figsize=fig_size, dpi=120)
 
-    # Palette de couleurs personnalisée
     colors = ['#fa5703', '#457b9d', '#2a9d8f', '#9b5de5', '#e63946']
 
-    # --- BOUCLE SUR CHAQUE RUN ---
     for i, (label, mc_results) in enumerate(mc_results_dict.items()):
         b_sim = mc_results["b_sim"]
         E_extrap_mean = mc_results["E_extrap_mean"]
         E_extrap_std = mc_results["E_extrap_std"]
         
-        # Sélection cyclique de la couleur
         color = colors[i % len(colors)]
 
-        # Histogramme (avec alpha=0.6 pour voir à travers)
-        ax2.hist(b_sim, bins=80, density=True, color=color, alpha=0.4, label=f"{label} std: {E_extrap_std:.6f}")
+        ax2.hist(b_sim, bins=80, density=True, color=color, alpha=0.4, 
+                label=r"$E_{0, \mathrm{" + label + r"}}^{\mathrm{extrap}}$ Distrib.")
 
-        # Ligne de la moyenne
         ax2.axvline(E_extrap_mean, color=color, linestyle='--', linewidth=2, 
                     label=f"{label} Mean: {E_extrap_mean:.6f}")
         
-        # Zone grisée pour l'écart-type (plus transparente pour ne pas surcharger)
         ax2.axvspan(E_extrap_mean - E_extrap_std, E_extrap_mean + E_extrap_std, 
                     color=color, alpha=0.1)
 
-    # --- ÉNERGIE EXACTE (tracée une seule fois) ---
     ax2.axvline(exact_gs_energy_per_site, color='green', linestyle='-', 
-                linewidth=2.5, label=f"Exact Energy: {exact_gs_energy_per_site:.6f}", zorder=10)
+                linewidth=2.5, label=r"$E_0^{exact}$")
 
-    # --- MISE EN FORME ---
     ax2.set_xlabel("Extrapolated Ground-State Energy per site", fontsize=LABEL_FONTSIZE)
     ax2.set_ylabel("Density", fontsize=LABEL_FONTSIZE)
-    ax2.legend(loc="upper left", fontsize=LEGEND_FONTSIZE, framealpha=0.9, edgecolor="black")
+    ax2.legend(loc="best", fontsize=LEGEND_FONTSIZE, framealpha=0.9, edgecolor="black")
     ax2.grid(True, linestyle="--", alpha=0.5)
 
     plt.tight_layout()
@@ -141,7 +134,7 @@ def plot_master_extrapolation(data_dict, mc_results, L, save_dir=save_default, n
     E_extrap_std = mc_results["E_extrap_std"]
     
     os.makedirs(save_dir, exist_ok=True)
-    plt.figure(figsize=(11, 7), dpi=120)
+    plt.figure(figsize=fig_size, dpi=120)
     cmap = plt.get_cmap('tab10')
     indices_sans_vert = [0, 1, 4, 5, 6, 7, 8, 9]
     colors = [cmap(indices_sans_vert[i % len(indices_sans_vert)]) for i in range(len(toutes_les_simulations))]
@@ -171,33 +164,45 @@ def plot_master_extrapolation(data_dict, mc_results, L, save_dir=save_default, n
         all_x_means.extend([x1, x2])
         all_y_means.extend([y1, y2])
 
-        lbl_e0_samples = r"$E_0$ Samples" if i == 0 else ""
-        lbl_eL_samples = r"$E_L$ Samples" if i == 0 else ""
+        lbl_e0_samples = r"$E_{VMC}$" if i == 0 else ""
+        lbl_eL_samples = r"$E_L$" if i == 0 else ""
+        
         plt.plot(results_sigma_e0 / L, results_e0 / L, "o", color=colors[i], markersize=2, alpha=0.05, label=lbl_e0_samples, zorder=1)
-        plt.plot(results_sigma_eL / L, el_valides / L, "o", color=colors[i], markersize=2, alpha=0.05, label=lbl_eL_samples, zorder=1)
+        plt.plot(results_sigma_eL / L, el_valides / L, "s", color=colors[i], markersize=2, alpha=0.05, label=lbl_eL_samples, zorder=1)
 
-        run_label = f"Run {config['n_iter']} iters"
-        plt.errorbar(x1, y1, xerr=x1_std, yerr=y1_std, fmt="o", color=colors[i], markeredgecolor="black", markersize=8, capsize=4, label=run_label + r" ($E_0$)", zorder=3)
-        plt.errorbar(x2, y2, xerr=x2_std, yerr=y2_std, fmt="s", color=colors[i], markeredgecolor="black", markersize=8, capsize=4, label=run_label + r" ($E_L$)", zorder=3)
+        run_id = f"R{config['n_iter']}"
+        plt.errorbar(x1, y1, xerr=x1_std, yerr=y1_std, fmt="o", color=colors[i], markeredgecolor="black", markersize=8, capsize=4, label=fr"$E_{{VMC}}$ ({run_id})", zorder=3)
+        plt.errorbar(x2, y2, xerr=x2_std, yerr=y2_std, fmt="s", color=colors[i], markeredgecolor="black", markersize=8, capsize=4, label=fr"$E_L$ ({run_id})", zorder=3)
 
-    # Global Fit
     a_global, b_global = np.polyfit(all_x_means, all_y_means, 1)
     x_line = np.linspace(0, max(all_x_means) * 1.1, 100)
     y_line = a_global * x_line + b_global
 
-    plt.plot(x_line, y_line, "k--", alpha=0.9, linewidth=2, label=f"Global Fit", zorder=4)
-    plt.errorbar(0, E_extrap_mean, yerr=E_extrap_std, fmt="o", color="red", markeredgecolor='black', markersize=6, capsize=3, capthick=2, elinewidth=2.5, label=f"Extrap. = {E_extrap_mean:.5f} ± {E_extrap_std:.5f}", zorder=5)
-    plt.axhline(y=exact_gs_energy_per_site, color='green', linestyle='-', linewidth=2.5, alpha=0.8, label="Exact Energy", zorder=2)
+    plt.plot(x_line, y_line, "k--", alpha=0.9, linewidth=2, label="Global Fit", zorder=4)
+    
+    extrap_label = r"$E_0^{\mathrm{extrap}}$"
+    plt.errorbar(0, E_extrap_mean, yerr=E_extrap_std, fmt="o", color="red", markeredgecolor='black', markersize=6, capsize=3, capthick=2, elinewidth=2.5, label=extrap_label, zorder=5)
+    
+    plt.axhline(y=exact_gs_energy_per_site, color='green', linestyle='-', linewidth=2.5, alpha=0.8, label=r"$E_0^{exact}$", zorder=2)
     plt.axvline(x=0, color='gray', linestyle='-', linewidth=1, alpha=0.5, zorder=0)
     
     plt.xlabel(r"Variance $\sigma^2$ of energy per site", fontsize=LABEL_FONTSIZE) 
     plt.ylabel(r"Energy $E$ per site", fontsize=LABEL_FONTSIZE)
-    # plt.title("Master Zero-Variance Extrapolation (All Runs)", fontsize=16, fontweight="bold")
-    plt.legend(loc='best', fontsize=LEGEND_FONTSIZE, framealpha=0.9, edgecolor="black")
+    
     plt.grid(True, linestyle="--", alpha=0.5, zorder=0)
-    plt.tight_layout()
 
-    plt.savefig(os.path.join(save_dir, name), dpi=300)
+    plt.legend(
+        loc='center left',            # Point d'ancrage de la légende
+        bbox_to_anchor=(1.02, 0.5),   # (x, y) : x=1.02 la pousse juste à droite des axes, y=0.5 la centre verticalement
+        fontsize=11,         
+        ncol=1,                       # On repasse à 1 colonne puisque l'espace horizontal n'est plus limité par le cadre
+        labelspacing=0.6,     
+        handletextpad=0.5,    
+        framealpha=1.0,               # Pas besoin de transparence si elle est dehors
+        edgecolor="black"
+    )
+
+    plt.savefig(os.path.join(save_dir, name), dpi=300, bbox_inches='tight')
     plt.show()
 
 def plot_individual_zero_variance_j2(data_dict, L, N_sim=10000, save_dir="../../assets/extrapolations_j2", show=False):
@@ -270,7 +275,7 @@ def plot_individual_zero_variance_j2(data_dict, L, N_sim=10000, save_dir="../../
         ex_std = mc_results["E_extrap_std"]
 
         # --- Début du tracé ---
-        plt.figure(figsize=(10, 6), dpi=120)
+        plt.figure(figsize=fig_size, dpi=120)
 
         # 1. Tracé des points VMC avec barres d'erreurs (X et Y)
         plt.errorbar(x0_means, y0_means, xerr=x0_stds, yerr=y0_stds, 

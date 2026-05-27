@@ -17,7 +17,7 @@ def plot_lanczos_results(alphas_to_test, energies_mean, energies_std, e_vmc, exa
     alphas_min_bootstrap = bootstrap_results["alphas_min_bootstrap"]
 
     # --- GRAPHIC 1 : Le paysage d'énergie lissé ---
-    plt.figure(figsize=(10, 6), dpi=120)
+    plt.figure(figsize=fig_size, dpi=120)
 
     plt.plot(alphas_to_test, energies_mean, color="red", label="Raw VMC Data")
     plt.fill_between(alphas_to_test, energies_mean - energies_std, energies_mean + energies_std, color="#e63946", alpha=0.15, label=r"Error Band ($\pm 1 \sigma$)")
@@ -40,7 +40,7 @@ def plot_lanczos_results(alphas_to_test, energies_mean, energies_std, e_vmc, exa
     plt.show()
 
     # --- GRAPHIC 2 : Distribution de l'incertitude ---
-    plt.figure(figsize=(8, 5), dpi=120)
+    plt.figure(figsize=fig_size, dpi=120)
     plt.hist(alphas_min_bootstrap, bins=max(10, len(np.unique(alphas_min_bootstrap))), density=True, color="#457b9d", alpha=0.75, edgecolor="white", label="Bootstrap samples")
 
     plt.axvline(x=alpha_opt_final, color="#e63946", linestyle="-", linewidth=2.5, label=f"Selected $\\alpha$ = {alpha_opt_final:.4f}")
@@ -56,7 +56,7 @@ def plot_lanczos_results(alphas_to_test, energies_mean, energies_std, e_vmc, exa
     plt.show()
 
     #--- GRPAHIC 3 : Error ---
-    plt.figure(figsize=(8, 5), dpi=120)
+    plt.figure(figsize=fig_size, dpi=120)
 
     plt.plot(alphas_to_test, np.abs(energies_mean - exact_gs_energy),  label="Absolute error")
     plt.axvline(x=alpha_opt_final, color="#1d3557", linestyle="--", linewidth=2, 
@@ -110,7 +110,7 @@ def plot_alpha_convergence(historique_alpha, alpha_min, alpha_err,
     # ==========================================
     # FIGURE 1 : Trajectoire de Alpha
     # ==========================================
-    plt.figure(figsize=(8, 6), dpi=150)
+    plt.figure(figsize=fig_size, dpi=150)
     
     plt.plot(historique_alpha, marker='o', markersize=4, color="#457b9d", linewidth=1.5, alpha=0.7, label=r"VMC $\alpha$")
     
@@ -134,7 +134,7 @@ def plot_alpha_convergence(historique_alpha, alpha_min, alpha_err,
     # ==========================================
     # FIGURE 2 : Erreur Absolue (Échelle Log)
     # ==========================================
-    plt.figure(figsize=(8, 6), dpi=150)
+    plt.figure(figsize=fig_size, dpi=150)
     
     epsilon = 1e-12 
     diff_alpha = np.abs(historique_alpha - alpha_min) + epsilon
@@ -155,7 +155,7 @@ def plot_alpha_convergence(historique_alpha, alpha_min, alpha_err,
     # ==========================================
     # FIGURE 3 : Histogramme de la zone convergée
     # ==========================================
-    plt.figure(figsize=(8, 6), dpi=150)
+    plt.figure(figsize=fig_size, dpi=150)
     
     # Histogramme des dernières itérations
     plt.hist(tail_alphas, bins=15, color="#fa5703", alpha=0.75, edgecolor="white", density=True, label="VMC Samples")

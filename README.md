@@ -8,7 +8,7 @@ This project provides a robust numerical framework to study the ground-state pro
 * **Lanczos Ansatz:** Post-processing optimization to improve initial variational wavefunctions.
 
 <div align="center">
-  <img src="./assets/2D_4x4/extrapolation_distribution_comparison.png" alt="extrapolation_distribution_comparison" width="600"/>
+  <img src="./assets/extrapolation_distribution_comparison.png" alt="extrapolation_distribution_comparison" width="600"/>
 </div>
 
 ## 📂 Project Structure

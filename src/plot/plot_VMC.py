@@ -26,7 +26,7 @@ def plot_VMC(data_file, exact_gs_energy, save_fig=False, fig_name="VMC_Optimizat
 
     relative_error = np.abs(energy_RBM - exact_gs_energy) / np.abs(exact_gs_energy)
 
-    fig, axs = plt.subplots(2, 2, figsize=(12, 8), dpi=150) 
+    fig, axs = plt.subplots(2, 2, figsize=fig_size, dpi=150) 
 
     colors = {
         "energy": "#e63946",    # Red
@@ -123,7 +123,7 @@ def plot_VMC_sequential(data_file_init, data_file_alpha, exact_gs_energy, save_f
     iters2_shifted = iters2 - iters2[0] + iters1[-1]
 
     # 3. Préparation du Graphique
-    fig, axs = plt.subplots(2, 2, figsize=(12, 8), dpi=150) 
+    fig, axs = plt.subplots(2, 2, figsize=fig_size, dpi=150) 
 
     colors = {
         "energy": "#e63946",    

@@ -38,7 +38,7 @@ def plot_energy_vs_frustration(data_dict, L, save_dir=save_default, j2_key="J2/J
 
     # 3. Tracé du graphique principal (Énergie)
     os.makedirs(save_dir, exist_ok=True)
-    plt.figure(figsize=(10, 6), dpi=120)
+    plt.figure(figsize=fig_size, dpi=120)
 
     plt.errorbar(j2_list, e0_list, yerr=e0_err_list, fmt='o', ecolor='#457b9d', capsize=2, label='VMC pur ($E_0$)')
     plt.errorbar(j2_list, el_list, yerr=el_err_list, fmt='s', ecolor='#f4a261', capsize=2, label='1 pas de Lanczos ($E_L$)')
