@@ -202,12 +202,12 @@ def create_results_table(data_dict, L):
         n = len(e0_array)
         e0_mean = np.mean(e0_array) / L
         var0_mean = np.mean(var0_array) / L
-        sem_e0 = var0_mean / (np.sqrt(n)) if n > 1 else 0  
+        sem_e0 = np.sqrt(var0_mean) / (np.sqrt(n)) if n > 1 else 0  
         
         # 3. Energy Lanczos (Moyenne par site)
         el_mean = np.mean(el_array) / L
         varL_mean = np.mean(varL_array) / L
-        sem_el = varL_mean / (np.sqrt(n)) if n > 1 else 0  
+        sem_el = np.sqrt(varL_mean) / (np.sqrt(n)) if n > 1 else 0  
         
         # 4. Energy Project avec Zero Variance (Extrapolation linéaire 2 points)
         # Formule : E_proj = E0 - pente * Var0  (où pente = (EL - E0) / (VarL - Var0))

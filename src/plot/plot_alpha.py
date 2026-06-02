@@ -19,20 +19,29 @@ def plot_lanczos_results(alphas_to_test, energies_mean, energies_std, e_vmc, exa
     # --- GRAPHIC 1 : Le paysage d'énergie lissé ---
     plt.figure(figsize=fig_size, dpi=120)
 
-    plt.plot(alphas_to_test, energies_mean, color="red", label="Raw VMC Data")
-    plt.fill_between(alphas_to_test, energies_mean - energies_std, energies_mean + energies_std, color="#e63946", alpha=0.15, label=r"Error Band ($\pm 1 \sigma$)")
+    # 1. Courbe et erreur
+    plt.plot(alphas_to_test, energies_mean, color="red", label=r"Landscape $E_L(\alpha)$")
+    plt.fill_between(alphas_to_test, energies_mean - energies_std, energies_mean + energies_std, 
+                     color="#e63946", alpha=0.15, label=r"Uncertainty ($\pm 1 \sigma_{\mathrm{SEM}}$)")
 
+    # 2. L'optimum (SANS les résultats numériques)
     plt.axvline(x=alpha_opt_final, color="#1d3557", linestyle="--", linewidth=2, 
-                label=f"$\\alpha_{{opt}}$ = {alpha_opt_final:.4f} $\\pm$ {alpha_opt_err:.4f}")
+                label=r"Extracted optimum $\alpha_{\mathrm{opt}}$")
     plt.scatter([alpha_opt_final], [e_min_final], color="#1d3557", s=100, marker='o', zorder=5)
     plt.axvspan(alpha_opt_final - alpha_opt_err, alpha_opt_final + alpha_opt_err, color="#1d3557", alpha=0.25)
 
-    plt.axhline(y=e_vmc, color="#457b9d", linestyle=":", linewidth=2, label=f"Base VMC Energy = {e_vmc:.4f}")
-    plt.axhline(y=exact_gs_energy, color="#2a9d8f", linestyle="-.", linewidth=2.5, alpha=0.9, label=f"Exact Energy = {exact_gs_energy:.4f}")
+    # 3. Énergies de référence (SANS les résultats numériques)
+    plt.axhline(y=e_vmc, color="#457b9d", linestyle=":", linewidth=2, 
+                label=r"Baseline $E_{\mathrm{VMC}}$")
+    plt.axhline(y=exact_gs_energy, color="#2a9d8f", linestyle="-.", linewidth=2.5, alpha=0.9, 
+                label=r"Exact $E_{\mathrm{ex}}$")
 
+    # Axes et affichage
     plt.xlabel(r"Lanczos Parameter $\alpha$", fontsize=LABEL_FONTSIZE)
-    plt.ylabel("Approximated Energy $E$", fontsize=LABEL_FONTSIZE)
+    plt.ylabel(r"Lanczos Energy $E_L(\alpha)$", fontsize=LABEL_FONTSIZE)
     plt.ylim(exact_gs_energy - 0.005, e_vmc + 0.01) 
+    
+    # La légende prendra beaucoup moins de place maintenant
     plt.legend(loc="upper right", fontsize=LEGEND_FONTSIZE, framealpha=0.9, edgecolor="black")
     plt.grid(True, linestyle="--", alpha=0.5)
     plt.tight_layout()
@@ -81,19 +90,6 @@ def plot_lanczos_results(alphas_to_test, energies_mean, energies_std, e_vmc, exa
 
 def plot_alpha_convergence(historique_alpha, alpha_min, alpha_err, 
                            data_file="../../assets/", tail_length=100):
-    """
-    """
-    # ==========================================
-    # 0. Configuration stricte pour LaTeX
-    # ==========================================
-    plt.rcParams.update({
-        "axes.labelsize": 16,       # Grosse police pour les axes
-        "xtick.labelsize": 16,      # Grosse police pour les graduations
-        "ytick.labelsize": 16,
-        "legend.fontsize": LEGEND_FONTSIZE,      # Grosse police pour la légende
-        "axes.linewidth": 1.5,
-        "grid.alpha": 0.5
-    })
 
     os.makedirs(data_file, exist_ok=True)
     historique_alpha = np.array(historique_alpha)
@@ -110,22 +106,25 @@ def plot_alpha_convergence(historique_alpha, alpha_min, alpha_err,
     # ==========================================
     # FIGURE 1 : Trajectoire de Alpha
     # ==========================================
-    plt.figure(figsize=fig_size, dpi=150)
+    plt.figure(figsize=fig_size, dpi=120)
     
-    plt.plot(historique_alpha, marker='o', markersize=4, color="#457b9d", linewidth=1.5, alpha=0.7, label=r"VMC $\alpha$")
+    # 1. Trajectoire de l'optimisation (Au lieu de "VMC \alpha")
+    plt.plot(historique_alpha, marker='o', markersize=4, color="#457b9d", linewidth=1.5, alpha=0.7, label=r"SGD Trajectory")
     
-    # Cible et Erreur Bootstrap
-    plt.axhline(y=alpha_min, color="#2a9d8f", linestyle="--", linewidth=2.5, label=r"Target $\alpha_{opt}$")
+    # 2. Cible et Erreur Bootstrap (Au lieu de "Target \alpha_{opt}")
+    # On utilise \mathrm{opt} pour respecter la typographie LaTeX du texte
+    plt.axhline(y=alpha_min, color="#2a9d8f", linestyle="--", linewidth=2.5, label=r"$\alpha_{\mathrm{opt}}$ (MA-Bootstrap)")
     plt.axhspan(alpha_min - alpha_err, alpha_min + alpha_err, color="#2a9d8f", alpha=0.25)
 
-    # Moyenne et Bruit VMC
-    plt.axhline(y=alpha_mean, color="gray", linestyle=":", linewidth=2.5, label=r"VMC Mean")
+    # 3. Moyenne et Bruit (Au lieu de "VMC Mean")
+    plt.axhline(y=alpha_mean, color="gray", linestyle=":", linewidth=2.5, label=r"Steady-State Mean")
     plt.axhspan(alpha_mean - alpha_std, alpha_mean + alpha_std, color='gray', alpha=0.15)
 
-    plt.xlabel("VMC Iteration", fontsize=LABEL_FONTSIZE)
+    # L'axe X : le texte dit "over 1000 VMC iterations" ou "SGD iterations"
+    plt.xlabel("Optimization Iteration", fontsize=LABEL_FONTSIZE) 
     plt.ylabel(r"Lanczos Parameter $\alpha$", fontsize=LABEL_FONTSIZE)
     plt.grid(True, linestyle="--")
-    plt.legend(loc="best", framealpha=0.9, edgecolor="black")
+    plt.legend(loc="best", framealpha=0.9, edgecolor="black", fontsize=LEGEND_FONTSIZE)
     
     plt.tight_layout()
     plt.savefig(os.path.join(data_file, "alpha_trajectory.png"), bbox_inches='tight')

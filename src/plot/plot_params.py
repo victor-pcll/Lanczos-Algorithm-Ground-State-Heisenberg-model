@@ -1,9 +1,9 @@
 from matplotlib import pyplot as plt
 
-LABEL_FONTSIZE = 18
-LEGEND_FONTSIZE = 14
+LABEL_FONTSIZE = 24
+LEGEND_FONTSIZE = 24
 
-fig_size = (8, 6)
+fig_size = (12, 8)
 
 save_default = "../../assets"
 
