@@ -39,7 +39,7 @@ def plot_lanczos_results(alphas_to_test, energies_mean, energies_std, e_vmc, exa
     # Axes et affichage
     plt.xlabel(r"Lanczos Parameter $\alpha$", fontsize=LABEL_FONTSIZE)
     plt.ylabel(r"Lanczos Energy $E_L(\alpha)$", fontsize=LABEL_FONTSIZE)
-    plt.ylim(exact_gs_energy - 0.005, e_vmc + 0.01) 
+    plt.ylim(exact_gs_energy - 0.002, e_vmc + 0.002) 
     
     # La légende prendra beaucoup moins de place maintenant
     plt.legend(loc="upper right", fontsize=LEGEND_FONTSIZE, framealpha=0.9, edgecolor="black")

@@ -124,9 +124,10 @@ def plot_multiple_extrapolation_distributions(mc_results_dict, exact_gs_energy_p
     plt.savefig(os.path.join(save_dir, name), dpi=300) 
     plt.show()
 
-def plot_master_extrapolation(data_dict, mc_results, L, save_dir=save_default, name="master_extrapolation.png"):
+def plot_master_extrapolation(data_dict, mc_results, L, save_dir, name="master_extrapolation.png"):
     """
     Génère le graphique principal d'extrapolation (nuages de points et fit global).
+    Optimisé pour une publication scientifique avec légende déportée.
     """
     toutes_les_simulations = data_dict["simulations"]
     exact_gs_energy_per_site = data_dict["exact_gs_energy_per_site"]
@@ -134,7 +135,7 @@ def plot_master_extrapolation(data_dict, mc_results, L, save_dir=save_default, n
     E_extrap_std = mc_results["E_extrap_std"]
     
     os.makedirs(save_dir, exist_ok=True)
-    plt.figure(figsize=fig_size, dpi=120)
+    plt.figure(figsize=(9, 6), dpi=150) # figsize un peu plus large pour laisser la place à la légende
     cmap = plt.get_cmap('tab10')
     indices_sans_vert = [0, 1, 4, 5, 6, 7, 8, 9]
     colors = [cmap(indices_sans_vert[i % len(indices_sans_vert)]) for i in range(len(toutes_les_simulations))]
@@ -146,11 +147,13 @@ def plot_master_extrapolation(data_dict, mc_results, L, save_dir=save_default, n
         data = contenu["data"]
         config = contenu["config"]
         
+        # Extraction des données
         results_e0 = np.array(data["Energy_E0"]["Mean"])
         results_sigma_e0 = np.array(data["Energy_E0"]["Variance"])
         el_valides = np.array(data["Energy_EL"]["Mean"])
         results_sigma_eL = np.array(data["Energy_EL"]["Variance"])
 
+        # Moyennes et Erreurs ramenées par site (/L)
         x1 = np.mean(results_sigma_e0) / L
         y1 = np.mean(results_e0) / L
         x1_std = np.std(results_sigma_e0, ddof=1) / L
@@ -163,45 +166,57 @@ def plot_master_extrapolation(data_dict, mc_results, L, save_dir=save_default, n
 
         all_x_means.extend([x1, x2])
         all_y_means.extend([y1, y2])
-
-        lbl_e0_samples = r"$E_{VMC}$" if i == 0 else ""
-        lbl_eL_samples = r"$E_L$" if i == 0 else ""
         
-        plt.plot(results_sigma_e0 / L, results_e0 / L, "o", color=colors[i], markersize=2, alpha=0.05, label=lbl_e0_samples, zorder=1)
-        plt.plot(results_sigma_eL / L, el_valides / L, "s", color=colors[i], markersize=2, alpha=0.05, label=lbl_eL_samples, zorder=1)
+        # 1. Nuages de points (sans label pour ne pas polluer la légende)
+        plt.plot(results_sigma_e0 / L, results_e0 / L, "o", color=colors[i], markersize=2, alpha=0.05, zorder=1)
+        plt.plot(results_sigma_eL / L, el_valides / L, "s", color=colors[i], markersize=2, alpha=0.05, zorder=1)
 
+        # 2. Points moyens avec barres d'erreurs (Utilisation de {{}} pour échapper le f-string)
         run_id = f"R{config['n_iter']}"
-        plt.errorbar(x1, y1, xerr=x1_std, yerr=y1_std, fmt="o", color=colors[i], markeredgecolor="black", markersize=8, capsize=4, label=fr"$E_{{VMC}}$ ({run_id})", zorder=3)
-        plt.errorbar(x2, y2, xerr=x2_std, yerr=y2_std, fmt="s", color=colors[i], markeredgecolor="black", markersize=8, capsize=4, label=fr"$E_L$ ({run_id})", zorder=3)
+        plt.errorbar(x1, y1, xerr=x1_std, yerr=y1_std, fmt="o", color=colors[i], 
+                     markeredgecolor="black", markersize=7, capsize=3, 
+                     label=fr"$E_{{\mathrm{{VMC}}}}$ ({run_id})", zorder=3)
+                     
+        plt.errorbar(x2, y2, xerr=x2_std, yerr=y2_std, fmt="s", color=colors[i], 
+                     markeredgecolor="black", markersize=7, capsize=3, 
+                     label=fr"$E_{{\mathrm{{L}}}}$ ({run_id})", zorder=3)
 
+    # 3. Fit Global (Régression linéaire)
     a_global, b_global = np.polyfit(all_x_means, all_y_means, 1)
     x_line = np.linspace(0, max(all_x_means) * 1.1, 100)
     y_line = a_global * x_line + b_global
 
-    plt.plot(x_line, y_line, "k--", alpha=0.9, linewidth=2, label="Global Fit", zorder=4)
+    plt.plot(x_line, y_line, color="black", linestyle="--", alpha=0.7, linewidth=2, label="Linear Fit", zorder=4)
     
-    extrap_label = r"$E_0^{\mathrm{extrap}}$"
-    plt.errorbar(0, E_extrap_mean, yerr=E_extrap_std, fmt="o", color="red", markeredgecolor='black', markersize=6, capsize=3, capthick=2, elinewidth=2.5, label=extrap_label, zorder=5)
+    # 4. Point d'extrapolation (Losange rouge "D")
+    plt.errorbar(0, E_extrap_mean, yerr=E_extrap_std, fmt="D", color="#e63946", 
+                 markeredgecolor='black', markersize=8, capsize=4, capthick=2, elinewidth=2, 
+                 label=r"Intercept ($\sigma^2=0$)", zorder=5)
     
-    plt.axhline(y=exact_gs_energy_per_site, color='green', linestyle='-', linewidth=2.5, alpha=0.8, label=r"$E_0^{exact}$", zorder=2)
+    # 5. Lignes de référence
+    plt.axhline(y=exact_gs_energy_per_site, color='black', linestyle='-.', linewidth=2, alpha=0.9, 
+                label=r"$E_{\mathrm{exact}}$", zorder=2)
     plt.axvline(x=0, color='gray', linestyle='-', linewidth=1, alpha=0.5, zorder=0)
     
-    plt.xlabel(r"Variance $\sigma^2$ of energy per site", fontsize=LABEL_FONTSIZE) 
-    plt.ylabel(r"Energy $E$ per site", fontsize=LABEL_FONTSIZE)
+    # Mise en forme
+    plt.xlabel(r"Energy Variance per site $\sigma^2$", fontsize=LABEL_FONTSIZE) 
+    plt.ylabel(r"Energy per site $E$", fontsize=LABEL_FONTSIZE)
     
     plt.grid(True, linestyle="--", alpha=0.5, zorder=0)
 
+    # Légende extérieure
     plt.legend(
-        loc='center left',            # Point d'ancrage de la légende
-        bbox_to_anchor=(1.02, 0.5),   # (x, y) : x=1.02 la pousse juste à droite des axes, y=0.5 la centre verticalement
-        fontsize=11,         
-        ncol=1,                       # On repasse à 1 colonne puisque l'espace horizontal n'est plus limité par le cadre
+        loc='center left',            
+        bbox_to_anchor=(1.02, 0.5),   
+        fontsize=20,         
+        ncol=1,                       
         labelspacing=0.6,     
         handletextpad=0.5,    
-        framealpha=1.0,               # Pas besoin de transparence si elle est dehors
+        framealpha=1.0,               
         edgecolor="black"
     )
 
+    # Le paramètre bbox_inches='tight' est crucial pour ne pas rogner la légende extérieure
     plt.savefig(os.path.join(save_dir, name), dpi=300, bbox_inches='tight')
     plt.show()
 
